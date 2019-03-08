@@ -4,6 +4,7 @@ import io
 import requests
 from bs4 import BeautifulSoup
 import warnings
+from astropy import time
 
 
 class AIAEffectiveArea:
@@ -19,7 +20,7 @@ class AIAEffectiveArea:
         '''
 
         # Local input possible else fetch response table file from GSFC mirror of SSW
-        if filename:
+        if filename is not None:
             response_table = filename
         else:
             soup = BeautifulSoup(requests.get(url).text, 'html.parser')
@@ -40,7 +41,7 @@ class AIAEffectiveArea:
         :return: the effective area of the AIA detector interpolated to the target_time
         '''
 
-        eff_area_series = self._parse_series(wavelength)
+        eff_area_series = self._parse_series(wavelength.value)
 
         if (pd.to_datetime(time) - eff_area_series.index[0]) < pd.Timedelta(0):
             warnings.warn('The target time requested is before the beginning of AIA', UserWarning)
@@ -54,7 +55,7 @@ class AIAEffectiveArea:
         :return: the ratio of the current effective area to the  pre-launch effective area
         '''
 
-        eff_area_series = self._parse_series(wavelength)
+        eff_area_series = self._parse_series(wavelength.value)
 
         launch_value = eff_area_series[eff_area_series.index.min()]
 
